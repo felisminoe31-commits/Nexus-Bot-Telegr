@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus AI Suite</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --text: #e2e8f0; --accent: #3b82f6; --success: #22c55e; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 20px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card { background-color: var(--card); padding: 20px; border-radius: 15px; width: 100%; max-width: 400px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); margin-bottom: 15px; }
+        label { font-size: 0.9rem; color: #94a3b8; display: block; margin-bottom: 8px; }
+        select, textarea, button { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; box-sizing: border-box; margin-bottom: 15px; }
+        textarea { height: 80px; resize: none; }
+        button { background-color: var(--accent); border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.98); }
+        .hidden { display: none; }
+        #resultArea { white-space: pre-wrap; line-height: 1.5; font-size: 0.95rem; }
+        .premium-lock { text-align: center; border: 1px solid var(--accent); padding: 10px; border-radius: 10px; margin-top: 20px; }
+        .btn-green { background-color: var(--success); text-decoration: none; display: inline-block; text-align: center; color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>⚡ Nexus AI Suite</h1>
+
+    <div class="card">
+        <label>O que você quer criar hoje?</label>
+        <select id="modeSelector">
+            <option value="viral">📹 Roteiro Viral (TikTok/Reels)</option>
+            <option value="sales">💰 Mensagem de Venda (Cold Mail)</option>
+        </select>
+
+        <label id="inputLabel">Sobre qual nicho/assunto?</label>
+        <textarea id="userInput" placeholder="Ex: Emagrecimento, Venda de Site, Curso de Inglês..."></textarea>
+
+        <button onclick="generateAI()" id="btnGenerate">✨ Gerar Agora</button>
+    </div>
+
+    <div id="resultCard" class="card hidden">
+        <label>Resultado:</label>
+        <div id="resultArea"></div>
+        <button onclick="copyText()" style="margin-top:10px; background:#475569">Copiar Texto</button>
+    </div>
+
+    <div class="card premium-lock">
+        <h3>🚀 Versão PRO</h3>
+        <p style="font-size:0.8rem; color:#94a3b8">Gere resultados ilimitados e acesse o módulo Secreto.</p>
+        <a href="SEU_LINK_OXAPAY_AQUI" target="_blank" class="btn-green" style="width:100%; padding:10px; border-radius:8px;">Desbloquear por 5 USDT</a>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        async function generateAI() {
+            const topic = document.getElementById('userInput').value;
+            const type = document.getElementById('modeSelector').value;
+            const btn = document.getElementById('btnGenerate');
+            const resultCard = document.getElementById('resultCard');
+            const resultArea = document.getElementById('resultArea');
+
+            if(!topic) return alert("Por favor, digite um assunto!");
+
+            btn.innerText = "⏳ Criando Mágica...";
+            btn.disabled = true;
+
+            try {
+                // Chama nosso Backend na Vercel
+                const response = await fetch('/api', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, topic })
+                });
+
+                const data = await response.json();
+                
+                if(data.result) {
+                    resultArea.innerText = data.result;
+                    resultCard.classList.remove('hidden');
+                } else {
+                    alert("Erro na IA. Tente novamente.");
+                }
+
+            } catch (error) {
+                alert("Erro de conexão.");
+            }
+
+            btn.innerText = "✨ Gerar Novamente";
+            btn.disabled = false;
+        }
+
+        function copyText() {
+            const text = document.getElementById('resultArea').innerText;
+            navigator.clipboard.writeText(text);
+            alert("Copiado!");
+        }
+    </script>
+</body>
+</html>
